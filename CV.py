@@ -30,8 +30,6 @@ class CV():
             print('Debugging enabled. Loglevel set to 7')
             self.loglevel = 7
 
-        printer('cocBot initialized')
-
     def rgb_to_hsv(self,rgb):
         # Normalize our RGB values then convert them.
         normalized = (rgb[0] / 255.0, rgb[1] / 255.0, rgb[2] / 255.0)
