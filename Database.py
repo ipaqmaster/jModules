@@ -146,14 +146,19 @@ class Database: # Our database object
     return(self.cur.fetchone())
 
 
-  def execFetchoneDict(self,query):
+  def execFetchoneDict(self,query, showEmpty=False):
     self.exec(query)
     row = self.cur.fetchone()
-    if row == None:
-        return(None)
 
-    rowDict = dict(zip([c[0] for c in self.cur.description], row))
-    return(rowDict)
+    if row == None:
+        if not showEmpty:
+            return(None)
+        else:
+            row = []
+            for column in self.cur.description:
+                row.append(None)
+
+    return(dict(zip([c[0] for c in self.cur.description], row)))
 
 
   def insert(self, columns, values, table=None):
