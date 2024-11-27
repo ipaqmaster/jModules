@@ -141,6 +141,11 @@ class Database: # Our database object
     self.exec(query)
     return(self.cur.fetchall())
 
+  def execFetchone(self,query):
+    self.exec(query)
+    return(self.cur.fetchone())
+
+
   def execFetchoneDict(self,query):
     self.exec(query)
     row = self.cur.fetchone()
