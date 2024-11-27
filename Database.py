@@ -13,7 +13,7 @@ from dateutil import parser
 #   database = Database(databaseFile=dbFile, schema=schemaFile)
 
 class Database: # Our database object
-  def __init__(self, schema, databaseFile=None, backend='sqlite', host='localhost', username='', password=''):
+  def __init__(self, schema, databaseFile=None, backend='sqlite', host='localhost', username='', password='',debug=False):
 
     self.backend          = backend
     self.databaseBasename = databaseFile.split('.')[0]
@@ -60,7 +60,7 @@ class Database: # Our database object
         self.table = self.tables[0]
     
     try: # Configure for the appropriate backend
-      print('Using database backend %s' % self.backend)
+      if debug: print('Using database backend %s' % self.backend)
       match self.backend:
         case 'sqlite':
           import sqlite3
@@ -85,7 +85,7 @@ class Database: # Our database object
       print("Failed to establish backend %s: %s" % (self.backend,e))
       exit(1)
     finally:
-        print('Established %s connection' % self.backend)
+        if debug: print('Established %s connection' % self.backend)
 
     try: # Create our database and tables
 
