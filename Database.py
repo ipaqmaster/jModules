@@ -24,6 +24,7 @@ class Database: # Our database object
     self.databaseFile     = databaseFile
 
     self.tables           = []
+    self.table            = None
 
 
     # Load a schema from a dict, json file or string of json.
