@@ -171,7 +171,7 @@ class Database: # Our database object
 
     # Escape values, wrap in quotes
     for value in values:
-        value = "'%s'" % value.replace("'", "''")
+        value = "'%s'" % str(value).replace("'", "''")
         cleanValues.append(value)
 
     query += " values (%s)" % ', '.join(cleanValues)
