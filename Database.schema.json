@@ -1,0 +1,50 @@
+{
+  "tableOne": {
+    "columns": {
+      "id": {
+        "type": "integer primary key",
+        "typeSpecial": {
+          "mysql":"auto_increment",
+          "sqlite":"autoincrement"
+        }
+      },
+      "name": {
+        "type": "varchar(40)"
+      },
+      "hash": {
+        "type": "varchar(40) unique"
+      },
+      "unixtime": {
+        "type": "integer"
+      },
+      "active": {
+        "type": "boolean"
+      },
+      "comments": {
+        "type": "text"
+      },
+      "description": {
+        "type": "text unique"
+      },
+      "type": {
+        "type": "mediumtext"
+      }
+    },
+    "columnSpecial": {
+      "mysql": "",
+      "sqlite": ""
+    },
+    "tableSpecial": {
+      "mysql": "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+      "sqlite": ""
+    },
+    "updateIfNull": ["name","comments"]
+  },
+  "tableTwo":  {
+    "columns": {
+      "hash": {
+        "type": "varchar(40) primary key"
+      }
+    }
+  }
+}
