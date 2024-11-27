@@ -161,7 +161,7 @@ class Database: # Our database object
     return(dict(zip([c[0] for c in self.cur.description], row)))
 
 
-  def insert(self, columns, values, table=None):
+  def query(self, columns, values, mode='insert or ignore into', table=None, where=None):
     # If no table given and we're only working with a single table, assume that one
     if not table and self.table:
       table = self.table
@@ -169,17 +169,33 @@ class Database: # Our database object
       print('Cannot guess table for insert, please provide a table argument.')
       return False
 
-    query = "insert or ignore into %s (%s)" % (table, ', '.join(columns))
+    query = "%s %s" % (mode, table)
 
 
-    cleanValues = []
 
-    # Escape values, wrap in quotes
-    for value in values:
-        value = "'%s'" % str(value).replace("'", "''")
-        cleanValues.append(value)
+    if 'insert' in mode:
+        query += " (%s)" % ', '.join(columns)
+        cleanValues = []
 
-    query += " values (%s)" % ', '.join(cleanValues)
+        # Escape values, wrap in quotes
+        for value in values:
+            value = "'%s'" % str(value).replace("'", "''")
+            cleanValues.append(value)
+
+        query += " values (%s)" % ', '.join(cleanValues)
+
+    elif 'update' in mode:
+        query += " set "
+        preparedSets = []
+        for i in range(0, len(columns)):
+            preparedSets.append("%s = '%s'" % (columns[i], values[i]))
+
+        query += ', '.join(preparedSets)
+        
+
+    if where:
+        for clause in where:
+            query += " where %s %s '%s'" % (clause)
 
     result = self.exec(query)
 
