@@ -142,14 +142,21 @@ class CV():
             #self.showImage(haystackImage_rgb)
 
         # Match
-        if mode == 'color':
-            results             = cv2.matchTemplate(needleImage_rgb, haystackImage_rgb, cv2.TM_SQDIFF_NORMED)
-        elif mode == 'grayscale':
-            needleImage_gray    = self.convertImage('gray', needleImage_rgb)
-            haystackImage_gray  = self.convertImage('gray', haystackImage_rgb)
-            results             = cv2.matchTemplate(needleImage_gray, haystackImage_gray, cv2.TM_SQDIFF_NORMED)
-        else:
-            printer('Unknown mode %s' % mode)
+        try:
+            if mode == 'color':
+                results             = cv2.matchTemplate(needleImage_rgb, haystackImage_rgb, cv2.TM_SQDIFF_NORMED)
+            elif mode == 'grayscale':
+                needleImage_gray    = self.convertImage('gray', needleImage_rgb)
+                haystackImage_gray  = self.convertImage('gray', haystackImage_rgb)
+                results             = cv2.matchTemplate(needleImage_gray, haystackImage_gray, cv2.TM_SQDIFF_NORMED)
+            else:
+                printer('Unknown mode %s' % mode)
+        except Exception as e:
+            print('Failed to compare:')
+            print("\t%s" % haystackImage)
+            print("\t%s" % needleImage)
+            print(e)
+            return(False)
 
         minVal, maxVal, minIdx, maxIdx = minMaxLoc = cv2.minMaxLoc(results)
         MPx, MPy = minIdx
