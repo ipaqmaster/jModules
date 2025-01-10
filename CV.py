@@ -98,7 +98,9 @@ class CV():
         """Get text from an image. Optionally provide a custom tesstrain dataset with lang='some-lang' from /usr/share/tessdata/."""
 
         image = self.prepImage(image)
-        y, x, channels  = image.shape
+        dimensions = image.shape
+        y=dimensions[0]
+        x=dimensions[1]
         xFromPercentage, yFromPercentage = self.getCoordinatesFromPercentage(x, y, xPercent, yPercent)
 
         image = image[yFromPercentage:yFromPercentage+yMax, xFromPercentage:xFromPercentage+xMax]
