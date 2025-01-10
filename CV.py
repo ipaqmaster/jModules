@@ -98,9 +98,11 @@ class CV():
         """Get text from an image. Optionally provide a custom tesstrain dataset with lang='some-lang' from /usr/share/tessdata/."""
 
         image = self.prepImage(image)
-        w, h = self.getCoordinatesFromPercentage(xPercent, yPercent)
+        y, x, channels  = image.shape
+        wFromPercentage, hFromPercentage = self.getCoordinatesFromPercentage(x, y, xPercent, yPercent)
 
-        image = image[h:h+xMax, w:w+yMax]
+        image = image[wFromPercentage:wFromPercentage+xMax, wFromPercentage:wFromPercentage+yMax]
+        self.showImage(image)
 
         text = self.getText(image, lang=lang, mode=mode, config=config, binaryMin=binaryMin, binaryMax=binaryMax)
         if text:
@@ -186,9 +188,9 @@ class CV():
         return(MPx, MPy, w, h)
 
     def getCoordinatesFromPercentage(self, x, y, xPercent, yPercent):
-        x = int(x / 100 * xPercent)
-        y = int(y / 100 * yPercent)
-        return([x, y])
+        xResult = int(x / 100 * xPercent)
+        yResult = int(y / 100 * yPercent)
+        return([xResult, yResult])
 
     def getPercentageFromCoordinates(self, x, y, sourceX=None, sourceY=None):
         xPercent = int(x / sourceX * 100)
