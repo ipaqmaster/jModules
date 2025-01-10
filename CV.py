@@ -99,10 +99,9 @@ class CV():
 
         image = self.prepImage(image)
         y, x, channels  = image.shape
-        wFromPercentage, hFromPercentage = self.getCoordinatesFromPercentage(x, y, xPercent, yPercent)
+        xFromPercentage, yFromPercentage = self.getCoordinatesFromPercentage(x, y, xPercent, yPercent)
 
-        image = image[wFromPercentage:wFromPercentage+xMax, wFromPercentage:wFromPercentage+yMax]
-        self.showImage(image)
+        image = image[yFromPercentage:yFromPercentage+yMax, xFromPercentage:xFromPercentage+xMax]
 
         text = self.getText(image, lang=lang, mode=mode, config=config, binaryMin=binaryMin, binaryMax=binaryMax)
         if text:
