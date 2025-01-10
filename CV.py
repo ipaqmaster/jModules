@@ -93,17 +93,25 @@ class CV():
         else:
             return(False)
 
+    def getDimensionsImage(self, image):
+        image = self.prepImage(image)
+        dimensions = image.shape
+        x=dimensions[1]
+        y=dimensions[0]
+        return (x,y)
+
+    def cropImage(self, xPercent, yPercent, xMax, yMax, image):
+        image = self.prepImage(image)
+
+        x, y = self.getDimensionsImage(image)
+        xFromPercentage, yFromPercentage = self.getCoordinatesFromPercentage(x, y, xPercent, yPercent)
+        return(image[yFromPercentage:yFromPercentage+yMax, xFromPercentage:xFromPercentage+xMax])
 
     def getTextLocation(self, xPercent, yPercent, xMax, yMax, image, lang=None, mode=None, config=None, binaryMin=200, binaryMax=255):
         """Get text from an image. Optionally provide a custom tesstrain dataset with lang='some-lang' from /usr/share/tessdata/."""
 
-        image = self.prepImage(image)
-        dimensions = image.shape
-        y=dimensions[0]
-        x=dimensions[1]
-        xFromPercentage, yFromPercentage = self.getCoordinatesFromPercentage(x, y, xPercent, yPercent)
 
-        image = image[yFromPercentage:yFromPercentage+yMax, xFromPercentage:xFromPercentage+xMax]
+        image = self.cropImage(xPercent, yPercent, xMax, yMax, image)
 
         text = self.getText(image, lang=lang, mode=mode, config=config, binaryMin=binaryMin, binaryMax=binaryMax)
         if text:
