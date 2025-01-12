@@ -100,20 +100,22 @@ class CV():
         y=dimensions[0]
         return (x,y)
 
-    def cropImage(self, xPercent, yPercent, xMax, yMax, image):
+    def cropImage(self, image, xPercent, yPercent, xMax, yMax):
         image = self.prepImage(image)
 
         x, y = self.getDimensionsImage(image)
         xFromPercentage, yFromPercentage = self.getCoordinatesFromPercentage(x, y, xPercent, yPercent)
         return(image[yFromPercentage:yFromPercentage+yMax, xFromPercentage:xFromPercentage+xMax])
 
-    def getTextLocation(self, xPercent, yPercent, xMax, yMax, image, lang=None, mode=None, config=None, binaryMin=200, binaryMax=255):
+    def getTextLocation(self, image, xPercent, yPercent, xMax, yMax, lang=None, mode=None, config=None, binaryMin=200, binaryMax=255):
         """Get text from an image. Optionally provide a custom tesstrain dataset with lang='some-lang' from /usr/share/tessdata/."""
 
 
         image = self.cropImage(xPercent, yPercent, xMax, yMax, image)
 
         text = self.getText(image, lang=lang, mode=mode, config=config, binaryMin=binaryMin, binaryMax=binaryMax)
+        print(text)
+        self.showImage(image, timeout=10000)
         if text:
             return(text)
         else:
@@ -206,7 +208,7 @@ class CV():
         yPercent = int(y / sourceY * 100)
         return([xPercent, yPercent])
 
-    def findBoxOfColorFilling(self, minHeight, minWidth, minColor, maxColor, image, maxHeight=None, maxWidth=None, mode='tall', multiple=False, convertToHSV=False, morphX=None, morphY=None):
+    def findBoxOfColorFilling(self, image, minHeight, minWidth, minColor, maxColor, maxHeight=None, maxWidth=None, mode='tall', multiple=False, convertToHSV=False, morphX=None, morphY=None):
         """Searches for boxes of a colored filling returning one or multiple results."""
         """By default looks for 'tall' rectangles."""
         """Could replace processScreenshot's text processing role by matching against white rectangles here instead."""
@@ -316,7 +318,7 @@ class CV():
                 print('Found no boxes of color filling.')
             return(False)
 
-    def convertImage(self, mode, image, binaryMin=200, binaryMax=255):
+    def convertImage(self, image, mode, binaryMin=200, binaryMax=255):
         """A wrapper to quickly convert image data. On attempt failure returns the original image"""
         try:
             match mode:
