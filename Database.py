@@ -161,7 +161,7 @@ class Database: # Our database object
     return(dict(zip([c[0] for c in self.cur.description], row)))
 
 
-  def query(self, columns, values, mode='insert or ignore into', table=None, where=None):
+  def query(self, columns, values, mode='insert ignore into', table=None, where=None):
     # If no table given and we're only working with a single table, assume that one
     if not table and self.table:
       table = self.table
