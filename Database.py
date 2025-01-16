@@ -165,7 +165,7 @@ class Database: # Our database object
     # If no table given and we're only working with a single table, assume that one
     if not table and self.table:
       table = self.table
-    else:
+    elif not table:
       print('Cannot guess table for insert, please provide a table argument.')
       return False
 
