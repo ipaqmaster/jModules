@@ -177,9 +177,9 @@ class Database: # Our database object
         query += " (%s)" % ', '.join(columns)
         cleanValues = []
 
-        # Escape values, wrap in quotes
+        # Escape values, run through escape_string
         for value in values:
-            value = "'%s'" % str(value).replace("'", "''")
+            value = "'%s'" % self.con.escape_string(value).decode("utf-8")
             cleanValues.append(value)
 
         query += " values (%s)" % ', '.join(cleanValues)
@@ -195,11 +195,16 @@ class Database: # Our database object
 
     if where:
         for clause in where:
-            query += " where %s %s '%s'" % (clause)
+            query += " where %s %s '%s'" % (clause[0], clause[1], self.con.escape_string(clause[2]).decode("utf-8"))
 
-    result = self.exec(query)
+    if 'select' in mode:
+       result = self.execFetchone(query)
 
-    return result
+    else:
+        result = self.exec(query)
+    
+    return(result)
+
         
 
 
