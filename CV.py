@@ -69,8 +69,8 @@ class CV():
         image2 = self.prepImage(image2)
 
         # Convert the images to grayscale
-        gray_image1 = self.convertImage('gray',image1)
-        gray_image2 = self.convertImage('gray',image2)
+        gray_image1 = self.convertImage(image1, 'gray')
+        gray_image2 = self.convertImage(image2, 'gray')
 
         # Compute Mean Squared Error (MSE) between them
         mse = ((gray_image1 - gray_image2) ** 2).mean()
@@ -85,7 +85,7 @@ class CV():
         image = self.prepImage(image)
 
         if mode:
-            image = self.convertImage(mode, image, binaryMin=binaryMin, binaryMax=binaryMax)
+            image = self.convertImage(image, mode, binaryMin=binaryMin, binaryMax=binaryMax)
 
         text = pytesseract.image_to_string(image, lang=lang, config=config)
         if text:
@@ -143,6 +143,7 @@ class CV():
         haystackImage_rgb = self.prepImage(haystackImage)
         needleImage_rgb   = self.prepImage(needleImage)
 
+
         if not threshold:
             threshold = self.defaultThreshold
 
@@ -167,8 +168,8 @@ class CV():
             if mode == 'color':
                 results             = cv2.matchTemplate(needleImage_rgb, haystackImage_rgb, cv2.TM_SQDIFF_NORMED)
             elif mode == 'grayscale':
-                needleImage_gray    = self.convertImage('gray', needleImage_rgb)
-                haystackImage_gray  = self.convertImage('gray', haystackImage_rgb)
+                needleImage_gray    = self.convertImage(needleImage_rgb,   'gray')
+                haystackImage_gray  = self.convertImage(haystackImage_rgb, 'gray')
                 results             = cv2.matchTemplate(needleImage_gray, haystackImage_gray, cv2.TM_SQDIFF_NORMED)
             else:
                 printer('Unknown mode %s' % mode)
