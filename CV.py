@@ -93,6 +93,45 @@ class CV():
         else:
             return(False)
 
+    def getTextWithCoordinates(self, image, lang=None, mode=None, config=None, morphX=5, morphY=2, binaryMin=200, binaryMax=255):
+
+        results = {}
+        image = self.prepImage(image)
+        imageGray = self.convertImage(image, 'gray')
+        _,imageThreshold = cv2.threshold(imageGray, binaryMin, binaryMax,cv2.THRESH_OTSU|cv2.THRESH_BINARY_INV)
+
+        #self.showImage(imageThreshold)
+
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (morphX,morphY))
+        dilation = cv2.dilate(imageThreshold, kernel, iterations=10)
+        #self.showImage(dilation, timeout=1000)
+
+        contours, _ = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        if self.debug:
+            print('contours: %s' % str(len(contours)))
+
+        # Sort them top to bottom
+        contours = self.sortContours(contours)
+
+        for contour in contours:
+            perimeter = cv2.arcLength(contour, True)
+            approx = cv2.approxPolyDP(contour, 0.02*perimeter, True)
+            x, y, w, h = cv2.boundingRect(approx)
+
+            target = imageGray[y-5:y+h+5, x-5:x+w+5]
+            #self.showImage(target)
+            text = self.getText(target,lang=lang, mode=mode, config=config)
+
+            # If we find text in a contour, write it to the results with the center x,y coordinate of the contour.
+            if text:
+                results[text.strip()] = [round(x + w/2), round(y+h/2)]
+
+        return(results)
+
+
+
+
+
     def getDimensionsImage(self, image):
         image = self.prepImage(image)
         dimensions = image.shape
