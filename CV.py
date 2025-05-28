@@ -348,7 +348,7 @@ class CV():
             #printer(str(e))
             return(image)
 
-    def sortContours(self, contours, mode='top'):
+    def sortContours(self, contours, mode='x'):
         match mode:
             case 'x':
                 return(sorted(contours, key=lambda ctr: cv2.boundingRect(ctr)[0]))
