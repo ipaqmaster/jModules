@@ -29,10 +29,17 @@ class IPv4Iterator:
     def __init__(self, target='0.0.0.0/0', excludes=['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'], seed=None, debug=False):
         self.target      = target
         self.excludes    = excludes
+        self.seed        = seed
+        self.debug       = debug
 
-        if seed:
-            random.seed(seed)
-        self.feistelSeed = random.getrandbits(32)
+        if self.seed:
+            random.seed(self.seed)
+        else:
+            self.seed = random.getrandbits(32)
+
+        print('IPv4Iterator seed: %s' % self.seed)
+
+        self.feistelSeed = self.seed
 
         self.getTargets()
         self.makeGenerators()
@@ -62,6 +69,7 @@ class IPv4Iterator:
                         newNetworks.append(network)
                 targets = newNetworks
 
+        if self.debug:
             print("Found %s subnets of %s after excluding ranges: %s" % (len(targets), self.target, self.excludes))
 
         self.targets = targets
