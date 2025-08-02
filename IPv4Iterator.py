@@ -74,6 +74,7 @@ class IPv4Iterator:
         self.generators = []
         for target in self.targets:
             gen = ipRangeRandomOrder(start=int(target.network_address), size=int(target.num_addresses), seed=self.feistelSeed)
+            next(gen) # Skip the first entry which happens to be the subnet itself. (TBD why)
             self.generators.append(gen)
 
     def generate(self):
