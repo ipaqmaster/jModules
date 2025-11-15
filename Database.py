@@ -145,6 +145,20 @@ class Database: # Our database object
     self.exec(query)
     return(self.cur.fetchone())
 
+  def execFetchAllDict(self, query, showEmpty=False):
+    self.exec(query)
+    rows = self.cur.fetchall()
+    results = []
+
+    if rows == None:
+        if not showEmpty:
+            return(None)
+    else:
+        desc = self.cur.description
+        for row in rows:
+            results.append(dict(zip([c[0] for c in desc], row)))
+
+    return(results)
 
   def execFetchoneDict(self,query, showEmpty=False):
     self.exec(query)
@@ -161,7 +175,7 @@ class Database: # Our database object
     return(dict(zip([c[0] for c in self.cur.description], row)))
 
 
-  def query(self, columns, values, mode='insert ignore into', table=None, where=None, dict=False):
+  def query(self, columns, values, mode='insert ignore into', table=None, where=None, Dict=False, fetch_all=False):
     # If no table given and we're only working with a single table, assume that one
     if not table and self.table:
       table = self.table
@@ -199,10 +213,16 @@ class Database: # Our database object
 
 
     if 'select' in mode:
-        if dict:
-            result = self.execFetchoneDict(query)
+        if fetch_all:
+            if Dict:
+                result = self.execFetchAllDict(query)
+            else:
+                result = self.execFetchAll(query)
         else:
-            result = self.execFetchone(query)
+            if Dict:
+                result = self.execFetchoneDict(query)
+            else:
+                result = self.execFetchone(query)
 
     else:
         result = self.exec(query)
