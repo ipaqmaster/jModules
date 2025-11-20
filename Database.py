@@ -175,7 +175,7 @@ class Database: # Our database object
     return(dict(zip([c[0] for c in self.cur.description], row)))
 
 
-  def query(self, columns, values, mode='insert ignore into', table=None, where=None, Dict=False, fetch_all=False):
+  def query(self, columns, values, mode='insert ignore into', order_by_column=None, order_by_desc=False, table=None, where=None, Dict=False, fetch_all=False):
     # If no table given and we're only working with a single table, assume that one
     if not table and self.table:
       table = self.table
@@ -211,6 +211,11 @@ class Database: # Our database object
         for clause in where:
             query += " where %s %s '%s'" % (clause[0], clause[1], self.con.escape_string(clause[2]).decode("utf-8"))
 
+
+    if order_by_column:
+        query += " order by %s" % order_by_column
+        if order_by_desc:
+            query += " desc"
 
     if 'select' in mode:
         if fetch_all:
