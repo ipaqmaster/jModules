@@ -59,7 +59,7 @@ class Database: # Our database object
 
     if len(self.tables) == 1:
         self.table = self.tables[0]
-    
+
     try: # Configure for the appropriate backend
       if debug: print('Using database backend %s' % self.backend)
       match self.backend:
@@ -205,11 +205,14 @@ class Database: # Our database object
             preparedSets.append("%s = '%s'" % (columns[i], values[i]))
 
         query += ', '.join(preparedSets)
-        
 
-    if where:
+
+    if where: # Accept multiple where (x == y) tuples in a list.
+        wheres = []
         for clause in where:
-            query += " where %s %s '%s'" % (clause[0], clause[1], self.con.escape_string(clause[2]).decode("utf-8"))
+            wheres.append("%s %s '%s'" % (clause[0], clause[1], self.con.escape_string(clause[2]).decode("utf-8")))
+
+        query += ' where ' + ' and '.join(wheres)
 
 
     if order_by_column:
@@ -231,9 +234,9 @@ class Database: # Our database object
 
     else:
         result = self.exec(query)
-    
+
     return(result)
 
-        
+
 
 
