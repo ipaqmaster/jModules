@@ -93,6 +93,47 @@ class CV():
         else:
             return(False)
 
+    def getImageLightness(self, image):
+        """
+        Understanding the values this returns
+
+        `magick -size 200x200 xc:white white_square.png`
+        A white square png generated with the command avove scored
+
+        255.0
+
+        Some program in Light mode scored (Snapped to the corner of a 1080p display)
+        215.096
+
+        That same program in Light mode in full screen scored
+        247.036
+
+        That same program in dark mode scored (Snapped to the corner of a 1080p display)
+        32.445
+
+        And again in full screen dark mode
+        32.226
+
+        The near identical result tells me this program's light mode in full screen not only
+        would brighten a room, but by doing so, more of the UI becomes the bright white CSS
+        than other parts of the UI which do not change size. Just a note.
+        """
+
+        result = np.mean(self.convertImage(self.prepImage(image), 'gray'))
+        if self.debug:
+            print(f'Image lightness is {result}')
+
+        return(result)
+
+
+    def isImageLight(self, image, light_threshold=150.0):
+        """
+        Return whether or not an image is probably Light mode or Dark mode.
+        So other functions can make an inversion decision when doing a binary threshold
+        """
+        result = self.getImageLightness(image)
+        return(result >= light_threshold)
+
     def getTextWithCoordinates(self, image, lang=None, mode=None, config=None, morphX=5, morphY=2, binaryMin=200, binaryMax=255):
 
         results = {}
