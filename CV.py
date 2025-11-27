@@ -134,18 +134,22 @@ class CV():
         result = self.getImageLightness(image)
         return(result >= light_threshold)
 
-    def getTextWithCoordinates(self, image, lang=None, mode=None, config=None, morphX=5, morphY=2, binaryMin=200, binaryMax=255):
+    def getTextWithCoordinates(self, image, lang=None, mode=None, config=None, morphX=5, morphY=2, binaryMin=100, binaryMax=255, iterations=10):
 
-        results = {}
-        image = self.prepImage(image)
+        results   = {}
+        image     = self.prepImage(image)
         imageGray = self.convertImage(image, 'gray')
-        _,imageThreshold = cv2.threshold(imageGray, binaryMin, binaryMax,cv2.THRESH_OTSU|cv2.THRESH_BINARY_INV)
 
-        #self.showImage(imageThreshold)
+        # Cover for processing images which are mostly light or mostly dark
+        # For the kernel + dilation step
+        if self.isImageLight(image):
+            mode='invertedbinary'
+        else:
+            mode='binary'
 
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (morphX,morphY))
-        dilation = cv2.dilate(imageThreshold, kernel, iterations=10)
-        #self.showImage(dilation, timeout=1000)
+        imageThreshold   = self.convertImage(imageGray, mode=mode, binaryMin=binaryMin, binaryMax=binaryMax)
+        kernel           = cv2.getStructuringElement(cv2.MORPH_RECT, (morphX,morphY))
+        dilation         = cv2.dilate(imageThreshold, kernel, iterations=iterations)
 
         contours, _ = cv2.findContours(dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         if self.debug:
@@ -159,19 +163,30 @@ class CV():
             approx = cv2.approxPolyDP(contour, 0.02*perimeter, True)
             x, y, w, h = cv2.boundingRect(approx)
 
-            target = imageGray[y-5:y+h+5, x-5:x+w+5]
-            #self.showImage(target)
-            text = self.getText(target,lang=lang, mode=mode, config=config)
 
-            # If we find text in a contour, write it to the results with the center x,y coordinate of the contour.
+            # Slight width boost, tiny boost in height - all sides
+            # gray seems to do the best
+            target = imageGray[y-2:y+h+2, x-5:x+w+5]
+
+            # Get text in this area, don't pass mode to tesseract.
+            text    = self.getText(target, lang=lang, mode=None, config=config)
+
+            # If we find text in a contour, write it to the results with the
+            # center x,y coordinate of the contour.
             if text:
                 results[text.strip()] = [round(x + w/2), round(y+h/2)]
 
+                # Debugging different --psm settings
+                #for psmInt in range(0,14):
+                #    print(f'--psm {psmInt}: ')
+                #    try:
+                #        print(self.getText(image=target, lang=lang, mode=None, config=f'--psm {psmInt}'))
+                #    except:
+                #        pass
+                #self.showImage(target,timeout=3000)
+
+
         return(results)
-
-
-
-
 
     def getDimensionsImage(self, image):
         image = self.prepImage(image)
