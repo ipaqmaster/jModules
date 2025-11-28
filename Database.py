@@ -175,7 +175,7 @@ class Database: # Our database object
     return(dict(zip([c[0] for c in self.cur.description], row)))
 
 
-  def query(self, columns, values, mode='insert ignore into', order_by_column=None, order_by_desc=False, table=None, where=None, Dict=False, fetch_all=False):
+  def query(self, columns, values, mode='insert ignore into', order_by_column=None, order_by_desc=False, table=None, where=None, Dict=False, fetch_all=False, limit=None):
     # If no table given and we're only working with a single table, assume that one
     if not table and self.table:
       table = self.table
@@ -220,6 +220,10 @@ class Database: # Our database object
         if order_by_desc:
             query += " desc"
 
+    if limit and type(limit) == int:
+        query += f" limit {limit}"
+
+    # Run queries below this line
     if 'select' in mode:
         if fetch_all:
             if Dict:
