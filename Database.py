@@ -13,10 +13,11 @@ from dateutil import parser
 #   database = Database(databaseFile=dbFile, schema=schemaFile)
 
 class Database: # Our database object
-  def __init__(self, schema, databaseFile=None, backend='sqlite', host='localhost', username='', password='',debug=False):
+  def __init__(self, schema, databaseFile=None, backend='sqlite', host='localhost', username='', password='', debug=False):
 
     self.backend          = backend
     self.databaseBasename = databaseFile.split('.')[0]
+    self.debug            = debug
     self.host             = host
     self.password         = password
     self.username         = username
@@ -61,7 +62,7 @@ class Database: # Our database object
         self.table = self.tables[0]
 
     try: # Configure for the appropriate backend
-      if debug: print('Using database backend %s' % self.backend)
+      if self.debug: print('Using database backend %s' % self.backend)
       match self.backend:
         case 'sqlite':
           import sqlite3
@@ -86,7 +87,7 @@ class Database: # Our database object
       print("Failed to establish backend %s: %s" % (self.backend,e))
       exit(1)
     finally:
-        if debug: print('Established %s connection' % self.backend)
+        if self.debug: print('Established %s connection' % self.backend)
 
     try: # Create our database and tables
 
@@ -222,6 +223,10 @@ class Database: # Our database object
 
     if limit and type(limit) == int:
         query += f" limit {limit}"
+
+    if self.debug:
+        print('Raw query:')
+        print(f'\t{query}')
 
     # Run queries below this line
     if 'select' in mode:
