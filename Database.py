@@ -134,9 +134,16 @@ class Database: # Our database object
       exit(1)
 
   def exec(self, query):
+    if self.debug:
+        t1 = time.time()
+
     query = query.replace("'None'",'NULL')
     self.cur.execute(query)
     self.con.commit()
+
+    if self.debug:
+        t2 = time.time()
+        print(f'Query took: {t2 - t1}')
 
   def execFetchAll(self, query):
     self.exec(query)
