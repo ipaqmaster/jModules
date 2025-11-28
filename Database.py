@@ -45,13 +45,13 @@ class Database: # Our database object
           self.schema = json.load(schema)
 
         else:
-          print('schema data is a string but does not appear to be json nor a json file.')
-          print("See 'Database.schema.json' for an example.")
+          print(f'[{__name__}] schema data is a string but does not appear to be json nor a json file.')
+          print(f"[{__name__}] See 'Database.schema.json' for an example.")
           exit(1)
 
       case _:
-        print("Unsure what the provided schema data is.")
-        print("See 'Database.schema.json' for an example.")
+        print(f"[{__name__}] Unsure what the provided schema data is.")
+        print(f"[{__name__}] See 'Database.schema.json' for an example.")
         exit(1)
 
     # Determine how many tables we're working with
@@ -62,7 +62,9 @@ class Database: # Our database object
         self.table = self.tables[0]
 
     try: # Configure for the appropriate backend
-      if self.debug: print('Using database backend %s' % self.backend)
+      if self.debug:
+          print(f'[{__name__}] Using database backend %s' % self.backend)
+
       match self.backend:
         case 'sqlite':
           import sqlite3
@@ -84,10 +86,10 @@ class Database: # Our database object
           self.cur = self.con.cursor()
 
     except Exception as e:
-      print("Failed to establish backend %s: %s" % (self.backend,e))
+      print(f"[{__name__}] Failed to establish backend %s: %s" % (self.backend,e))
       exit(1)
     finally:
-        if self.debug: print('Established %s connection' % self.backend)
+        if self.debug: print(f'[{__name__}] Established %s connection' % self.backend)
 
     try: # Create our database and tables
 
@@ -130,7 +132,7 @@ class Database: # Our database object
         self.exec(tableQuery)
 
     except Exception as e:
-      print('Failed to prepare Database: ', e)
+      print(f'[{__name__}] Failed to prepare Database: ', e)
       exit(1)
 
   def exec(self, query):
@@ -143,7 +145,7 @@ class Database: # Our database object
 
     if self.debug:
         t2 = time.time()
-        print(f'Query took: {t2 - t1}')
+        print(f'[{__name__}] Query took: {t2 - t1}')
 
   def execFetchAll(self, query):
     self.exec(query)
@@ -188,7 +190,7 @@ class Database: # Our database object
     if not table and self.table:
       table = self.table
     elif not table:
-      print('Cannot guess table for insert, please provide a table argument.')
+      print(f'[{__name__}] Cannot guess table for insert, please provide a table argument.')
       return False
 
     query = "%s %s" % (mode, table)
@@ -232,8 +234,8 @@ class Database: # Our database object
         query += f" limit {limit}"
 
     if self.debug:
-        print('Raw query:')
-        print(f'\t{query}')
+        print(f'[{__name__}] Raw query:')
+        print(f'[{__name__}] {query}')
 
     # Run queries below this line
     if 'select' in mode:
