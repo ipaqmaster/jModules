@@ -13,7 +13,7 @@ from dateutil import parser
 #   database = Database(databaseFile=dbFile, schema=schemaFile)
 
 class Database: # Our database object
-  def __init__(self, schema, databaseFile=None, backend='sqlite', host='localhost', username='', password='', debug=False):
+  def __init__(self, schema=None, databaseFile=None, backend='sqlite', host='localhost', username='', password='', debug=False):
 
     self.backend          = backend
     self.databaseBasename = databaseFile.split('.')[0]
@@ -26,40 +26,6 @@ class Database: # Our database object
 
     self.tables           = []
     self.table            = None
-
-
-    # Load a schema from a dict, json file or string of json.
-    match schema:
-      case dict():
-        # Read a dict in directly
-        self.schema = schema
-
-      case str():
-        # Try loading a file
-        if os.path.isfile(schema):
-          with open(schema, 'r') as file:
-            self.schema = json.load(file)
-
-        elif jsonString.startswith('{'):
-          # Try loading the string
-          self.schema = json.load(schema)
-
-        else:
-          print(f'[{__name__}] schema data is a string but does not appear to be json nor a json file.')
-          print(f"[{__name__}] See 'Database.schema.json' for an example.")
-          exit(1)
-
-      case _:
-        print(f"[{__name__}] Unsure what the provided schema data is.")
-        print(f"[{__name__}] See 'Database.schema.json' for an example.")
-        exit(1)
-
-    # Determine how many tables we're working with
-    for key in self.schema.keys():
-      self.tables.append(key)
-
-    if len(self.tables) == 1:
-        self.table = self.tables[0]
 
     try: # Configure for the appropriate backend
       if self.debug:
@@ -91,49 +57,84 @@ class Database: # Our database object
     finally:
         if self.debug: print(f'[{__name__}] Established %s connection' % self.backend)
 
-    try: # Create our database and tables
+    if self.schema: # If provided load a schema from a dict, json file or json string.
+        match self.schema:
+          case dict():
+            # Read a dict in directly
+            self.schema = schema
 
-      for table in list(self.schema.keys()): # Build the database
-        tableQuery = "create table if not exists %s" %(table)
+          case str():
+            # Try loading a file
+            if os.path.isfile(schema):
+              with open(schema, 'r') as file:
+                self.schema = json.load(file)
 
-        columnCount = len(self.schema[table]['columns'])
-        counter = 1
+            elif jsonString.startswith('{'):
+              # Try loading the string
+              self.schema = json.load(schema)
 
-        columnQuery = ''
+            else:
+              print(f'[{__name__}] schema data is a string but does not appear to be json nor a json file.')
+              print(f"[{__name__}] See 'Database.schema.json' for an example.")
+              exit(1)
+
+          case _:
+            print(f"[{__name__}] Unsure what the provided schema data is.")
+            print(f"[{__name__}] See 'Database.schema.json' for an example.")
+            exit(1)
+
+        # Determine how many tables we're working with
+        for key in self.schema.keys():
+          self.tables.append(key)
+
+        if len(self.tables) == 1:
+            self.table = self.tables[0]
 
 
-        for column in self.schema[table]['columns'].keys():
-          columnQuery += column + ' ' + self.schema[table]['columns'][column]['type']
 
-          # Check for any special column features and add them
-          if 'typeSpecial' in self.schema[table]['columns'][column]:
-            if self.backend in self.schema[table]['columns'][column]['typeSpecial']:
-              columnQuery += " %s" % self.schema[table]['columns'][column]['typeSpecial'][self.backend]
+        try: # Create our database and tables
 
-          if counter < 2:
-            columnQuery = ' ' + columnQuery
-          if counter < columnCount:
-            columnQuery += ', '
-          else:
-            columnQuery += ' '
+          for table in list(self.schema.keys()): # Build the database
+            tableQuery = "create table if not exists %s" %(table)
 
-          counter += 1
+            columnCount = len(self.schema[table]['columns'])
+            counter = 1
 
-        if 'columnSpecial' in self.schema[table]:
-          if self.schema[table]['columnSpecial'][self.backend]:
-            columnQuery += ', %s' % self.schema[table]['columnSpecial'][self.backend]
+            columnQuery = ''
 
-        tableQuery += ' (' + columnQuery + ')'
 
-        if 'tableSpecial' in self.schema[table]:
-          if self.schema[table]['tableSpecial'][self.backend]:
-            tableQuery += ' %s' % self.schema[table]['tableSpecial'][self.backend]
+            for column in self.schema[table]['columns'].keys():
+              columnQuery += column + ' ' + self.schema[table]['columns'][column]['type']
 
-        self.exec(tableQuery)
+              # Check for any special column features and add them
+              if 'typeSpecial' in self.schema[table]['columns'][column]:
+                if self.backend in self.schema[table]['columns'][column]['typeSpecial']:
+                  columnQuery += " %s" % self.schema[table]['columns'][column]['typeSpecial'][self.backend]
 
-    except Exception as e:
-      print(f'[{__name__}] Failed to prepare Database: ', e)
-      exit(1)
+              if counter < 2:
+                columnQuery = ' ' + columnQuery
+              if counter < columnCount:
+                columnQuery += ', '
+              else:
+                columnQuery += ' '
+
+              counter += 1
+
+            if 'columnSpecial' in self.schema[table]:
+              if self.schema[table]['columnSpecial'][self.backend]:
+                columnQuery += ', %s' % self.schema[table]['columnSpecial'][self.backend]
+
+            tableQuery += ' (' + columnQuery + ')'
+
+            if 'tableSpecial' in self.schema[table]:
+              if self.schema[table]['tableSpecial'][self.backend]:
+                tableQuery += ' %s' % self.schema[table]['tableSpecial'][self.backend]
+
+            self.exec(tableQuery)
+
+        except Exception as e:
+          print(f'[{__name__}] Failed to prepare Database: ', e)
+          exit(1)
 
   def exec(self, query):
     if self.debug:
