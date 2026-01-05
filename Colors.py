@@ -14,9 +14,9 @@ colors =  {
 }
 
 def printer(string=''):
-    colorProcessing = False
+    "A print wrapper which tries to add colors"
 
-    """A print wrapper which tries to add colors"""
+    colorProcessing = False
     if type(string) == str:
       if '%' in string:
           colorEscapeScan = re.findall(r'%[a-zA-Z]+%', string)
