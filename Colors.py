@@ -13,7 +13,7 @@ colors =  {
   "white": "\033[97m"
 }
 
-def printer(string=''):
+def printer(string='', end=None):
     "A print wrapper which tries to add colors"
 
     colorProcessing = False
@@ -28,4 +28,4 @@ def printer(string=''):
 
     if colorProcessing:
         string = string + colors['none']
-    print(string)
+    print(string, end=None)
