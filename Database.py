@@ -186,7 +186,7 @@ class Database: # Our database object
     return(dict(zip([c[0] for c in self.cur.description], row)))
 
 
-  def query(self, columns, values, mode='insert ignore into', order_by_column=None, order_by_desc=False, table=None, where=None, Dict=False, fetch_all=False, limit=None):
+  def query(self, columns, values, mode=None, order_by_column=None, order_by_desc=False, table=None, where=None, Dict=False, fetch_all=False, limit=None):
     # If no table given and we're only working with a single table, assume that one
     if not table and self.table:
       table = self.table
@@ -194,20 +194,30 @@ class Database: # Our database object
       print(f'[{__name__}] Cannot guess table for insert, please provide a table argument.')
       return False
 
+    if mode == None:
+        if type(self.con) == sqlite3.Connection:
+            mode = 'insert or ignore into'
+        else:
+            mode = 'insert ignore into'
+
     query = "%s %s" % (mode, table)
 
 
 
     if 'insert' in mode:
         query += " (%s)" % ', '.join(columns)
-        cleanValues = []
+        preppedValues = []
 
         # Escape values, run through escape_string
         for value in values:
-            value = "'%s'" % self.con.escape_string(value).decode("utf-8")
-            cleanValues.append(value)
+            if hasattr(database, 'escape_string'):
+                value = "'%s'" % value # self.con.escape_string(value).decode("utf-8")
+            else:
+                value = "'%s'" % value
 
-        query += " values (%s)" % ', '.join(cleanValues)
+            preppedValues.append(value)
+
+        query += " values (%s)" % ', '.join(preppedValues)
 
     elif 'update' in mode:
         query += " set "
@@ -221,7 +231,7 @@ class Database: # Our database object
     if where: # Accept multiple where (x == y) tuples in a list.
         wheres = []
         for clause in where:
-            wheres.append("%s %s '%s'" % (clause[0], clause[1], self.con.escape_string(clause[2]).decode("utf-8")))
+            wheres.append("%s %s '%s'" % (clause[0], clause[1], clause[2]))
 
         query += ' where ' + ' and '.join(wheres)
 
