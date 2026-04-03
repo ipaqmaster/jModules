@@ -34,6 +34,7 @@ class Database: # Our database object
       match self.backend:
         case 'sqlite':
           import sqlite3
+          self.mode = 'sqlite3'
           if not databaseFile.endswith('.sqlite') and not databaseFile.endswith('.db'):
             self.databaseFile = databaseFile + '.db'
 
@@ -42,6 +43,7 @@ class Database: # Our database object
 
         case 'mysql':
           import MySQLdb
+          self.mode = 'mysql'
           if not self.username:
               self.username = self.databaseBasename
 
@@ -195,7 +197,7 @@ class Database: # Our database object
       return False
 
     if mode == None:
-        if type(self.con) == sqlite3.Connection:
+        if self.mode == 'sqlite3':
             mode = 'insert or ignore into'
         else:
             mode = 'insert ignore into'
