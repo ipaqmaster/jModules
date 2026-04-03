@@ -211,7 +211,7 @@ class Database: # Our database object
         # Escape values, run through escape_string
         for value in values:
             if hasattr(self.con, 'escape_string'):
-                value = "'%s'" % value # self.con.escape_string(value).decode("utf-8")
+                value = f"'{self.con.escape_string(value).decode("utf-8")}'"
             else:
                 value = "'%s'" % value
 
