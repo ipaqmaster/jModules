@@ -225,7 +225,13 @@ class Database: # Our database object
         query += " set "
         preparedSets = []
         for i in range(0, len(columns)):
-            preparedSets.append("%s = '%s'" % (columns[i], values[i]))
+            column  = columns[i]
+            value   = values[i]
+            if hasattr(self.con, 'escape_string'):
+                value = f"'{self.con.escape_string(value).decode("utf-8")}'"
+            else:
+                value = "'%s'" % value
+            preparedSets.append("%s = %s" % (columns[i], value))
 
         query += ', '.join(preparedSets)
 
