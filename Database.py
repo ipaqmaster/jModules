@@ -53,6 +53,16 @@ class Database: # Our database object
                                      database=self.databaseBasename,connect_timeout=5)
           self.cur = self.con.cursor()
 
+        case 'postgres':
+            import psycopg2
+            self.con = psycopg2.connect(host=self.host,
+                                        port=5432,
+                                        user=self.username,
+                                        password=self.password,
+                                        database=self.databaseBasename,connect_timeout=5)
+
+            self.cur = self.con.cursor()
+
     except Exception as e:
       print(f"[{__name__}] Failed to establish backend %s: %s" % (self.backend,e))
       exit(1)
